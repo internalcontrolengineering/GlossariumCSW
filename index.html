@@ -1,0 +1,1550 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Glosario de Definiciones</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+  /* ========== PALETA DE COLORES MODO OSCURO ========== */
+  :root {
+    --bg-primary: #0f172a;      /* Fondo principal - azul oscuro muy saturado */
+    --bg-secondary: #1e293b;    /* Fondo secundario */
+    --bg-card: #334155;         /* Fondo de tarjetas */
+    --bg-elevated: #475569;     /* Elementos elevados */
+    --text-primary: #f8fafc;    /* Texto principal - blanco muy claro */
+    --text-secondary: #e2e8f0;  /* Texto secundario */
+    --text-muted: #cbd5e1;      /* Texto atenuado */
+    --border-color: #475569;    /* Bordes */
+    --accent-color: #3b82f6;    /* Color de acento azul */
+  }
+
+  /* ========== ESTILOS BASE ========== */
+  body {
+    background-color: #1E3A8A10;
+    color: #1f2937;
+    transition: all 0.3s ease;
+  }
+
+  /* ========== MODO OSCURO ========== */
+  body.dark-mode {
+    background-color: var(--bg-primary) !important;
+    color: var(--text-primary) !important;
+  }
+
+  /* ========== HEADER Y TÍTULOS MEJORADOS ========== */
+  .header-container {
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+
+  .main-title {
+    color: #1E40AF;
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+    line-height: 1.1;
+  }
+
+  .dark-mode .main-title {
+    color: #60a5fa !important;
+  }
+
+  .subtitle {
+    color: #4b5563;
+    font-size: 1.25rem;
+    margin-bottom: 1.5rem;
+    line-height: 1.4;
+    font-weight: 400;
+  }
+
+  .dark-mode .subtitle {
+    color: #d1d5db !important;
+  }
+
+  .logo-container {
+    margin-top: 1.5rem;
+  }
+
+  /* Tarjetas de glosario */
+  .card { 
+    transition: transform .12s ease, box-shadow .2s ease; 
+    position: relative; 
+    padding: 1rem; 
+    border-radius: 0.75rem; 
+    background: #fff; 
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08); 
+    border-left: 4px solid transparent;
+  }
+  .dark-mode .card {
+    background: var(--bg-card) !important;
+    color: var(--text-primary) !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  }
+  .card:hover { 
+    transform: translateY(-3px); 
+    box-shadow: 0 4px 12px rgba(0,0,0,0.12); 
+  }
+  .dark-mode .card:hover {
+    box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+  }
+  .card.favorite { border-left-color: #F59E0B; }
+  .card.authorized { border-left-color: #16A34A; }
+  .card.pending { border-left-color: #DC2626; }
+
+  /* Edición en línea */
+  .editable { background: rgba(255,255,255,0.04); }
+  .dark-mode .editable {
+    background: rgba(255,255,255,0.05);
+  }
+
+  /* Checkbox para selección múltiple */
+  .checkbox-select { position: absolute; top: 0.5rem; left: 0.5rem; display: none; }
+
+  /* Barra flotante para acciones */
+  .floating-bar { 
+    display: flex; 
+    gap: 0.5rem; 
+    margin-top: 0.5rem; 
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+    background: #f8fafc;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  }
+  .dark-mode .floating-bar {
+    background: var(--bg-elevated) !important;
+    color: var(--text-primary) !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  }
+
+  /* Colores botones */
+  .btn-primary { background-color: #1E40AF; color: white; }
+  .btn-success { background-color: #16A34A; color: white; }
+  .btn-warning { background-color: #F59E0B; color: white; }
+  .btn-danger { background-color: #DC2626; color: white; }
+  .btn-select { background-color: #374151; color: white; }
+  .btn-outline { border: 1px solid #1E40AF; color: #1E40AF; background: white; }
+  
+  .dark-mode .btn-outline {
+    border-color: var(--accent-color);
+    color: var(--accent-color);
+    background: transparent;
+  }
+  .dark-mode .btn-outline:hover {
+    background: var(--accent-color);
+    color: white;
+  }
+
+  /* Color azul Tempus igual que el título principal */
+  .section-title { color: #1E40AF; font-weight: 500; }
+  .dark-mode .section-title {
+    color: var(--accent-color) !important;
+  }
+
+  /* Animaciones */
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .fade-in {
+    animation: fadeIn 0.3s ease-out;
+  }
+
+  /* Badge de categoría */
+  .category-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.5rem;
+    border-radius: 1rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    margin-right: 0.5rem;
+    margin-bottom: 0.5rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+  }
+  .category-badge:hover {
+    transform: scale(1.05);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  }
+  .category-badge.editing {
+    padding: 0.25rem;
+    background: white !important;
+    border: 1px solid #1E40AF;
+  }
+  .dark-mode .category-badge.editing {
+    background: var(--bg-elevated) !important;
+    border-color: var(--accent-color);
+  }
+
+  /* Estadísticas */
+  .stats-card {
+    background: linear-gradient(135deg, #1E40AF, #3B82F6);
+    color: white;
+    border-radius: 0.75rem;
+    padding: 1rem;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  }
+  .dark-mode .stats-card {
+    background: linear-gradient(135deg, var(--accent-color), #60a5fa);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  }
+
+  /* Gestión de categorías */
+  .categories-management {
+    background: white;
+    border-radius: 0.5rem;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  }
+  .dark-mode .categories-management {
+    background: var(--bg-card) !important;
+    color: var(--text-primary) !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  }
+  .category-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.5rem;
+    margin-bottom: 0.5rem;
+    border-radius: 0.375rem;
+    background: #f8fafc;
+    transition: all 0.2s ease;
+  }
+  .dark-mode .category-item {
+    background: var(--bg-elevated) !important;
+    color: var(--text-primary) !important;
+  }
+  .category-item.editing {
+    background: #e0f2fe;
+  }
+  .dark-mode .category-item.editing {
+    background: #1e3a8a !important;
+  }
+  .category-actions {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  /* Inputs y formularios */
+  input, textarea, select {
+    background: white;
+    color: #1f2937;
+    border: 1px solid #d1d5db;
+  }
+  .dark-mode input,
+  .dark-mode textarea,
+  .dark-mode select {
+    background: var(--bg-elevated) !important;
+    color: var(--text-primary) !important;
+    border-color: var(--border-color) !important;
+  }
+  .dark-mode input::placeholder,
+  .dark-mode textarea::placeholder {
+    color: var(--text-muted) !important;
+  }
+
+  /* Secciones principales */
+  section.bg-white {
+    background: white !important;
+  }
+  .dark-mode section.bg-white {
+    background: var(--bg-card) !important;
+    color: var(--text-primary) !important;
+  }
+
+  /* Footer */
+  footer.bg-white {
+    background: white !important;
+  }
+  .dark-mode footer.bg-white {
+    background: var(--bg-card) !important;
+    color: var(--text-primary) !important;
+  }
+
+  /* Modal */
+  .dark-mode #modal > div,
+  .dark-mode #categoryModal > div {
+    background: var(--bg-card) !important;
+    color: var(--text-primary) !important;
+  }
+
+  /* Input de edición de categoría */
+  .category-edit-input {
+    border: none;
+    background: transparent;
+    font-size: 0.75rem;
+    font-weight: 500;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.5rem;
+    width: 100%;
+    outline: none;
+  }
+  .dark-mode .category-edit-input {
+    color: var(--text-primary) !important;
+    background: transparent !important;
+  }
+
+  /* Botones de acción para categorías */
+  .category-action-btn {
+    padding: 0.125rem 0.375rem;
+    border-radius: 0.25rem;
+    font-size: 0.625rem;
+    margin-left: 0.25rem;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s ease;
+  }
+  .category-save-btn {
+    background: #16A34A;
+    color: white;
+  }
+  .category-cancel-btn {
+    background: #F59E0B;
+    color: white;
+  }
+  .category-delete-btn {
+    background: #DC2626;
+    color: white;
+  }
+  .category-action-btn:hover {
+    transform: scale(1.1);
+  }
+
+  /* Textos específicos */
+  .dark-mode .text-gray-800 {
+    color: var(--text-primary) !important;
+  }
+  .dark-mode .text-gray-700 {
+    color: var(--text-secondary) !important;
+  }
+  .dark-mode .text-gray-500 {
+    color: var(--text-muted) !important;
+  }
+  .dark-mode .text-gray-400 {
+    color: var(--text-muted) !important;
+  }
+
+  /* Iconos de búsqueda */
+  .dark-mode .fa-search {
+    color: var(--text-muted) !important;
+  }
+</style>
+</head>
+<body class="text-gray-800 min-h-screen p-6" style="background-color: #1E3A8A10;">
+
+<div class="max-w-6xl mx-auto">
+<!-- HEADER MEJORADO -->
+<header class="mb-6">
+  <div class="header-container">
+    <h1 class="main-title">Glossarium</h1>
+    <p class="subtitle">Glosario Institucional de Términos y Definiciones</p>
+    <div class="logo-container">
+      <img src="https://raw.githubusercontent.com/jpojedawork-ai/Desarrollos/main/Logo%20CSW.png" alt="Logo Scriptum" class="w-32 h-auto mx-auto">
+    </div>
+  </div>
+
+  <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+    <div class="flex flex-wrap gap-2">
+      <button id="openNew" class="px-3 py-1 rounded btn-primary flex items-center gap-2">
+        <i class="fas fa-plus"></i> Nueva Definición
+      </button>
+      <button id="toggleDarkMode" class="px-3 py-1 rounded btn-outline flex items-center gap-2">
+        <i class="fas fa-moon"></i> Modo Oscuro
+      </button>
+      <button id="manageCategories" class="px-3 py-1 rounded btn-outline flex items-center gap-2">
+        <i class="fas fa-tags"></i> Gestionar Categorías
+      </button>
+    </div>
+    <div class="flex items-center gap-2">
+      <button id="toggleAuthorized" class="px-3 py-1 rounded btn-warning">Ocultar Autorizadas</button>
+      <button id="togglePending" class="px-3 py-1 rounded btn-warning">Ocultar No Autorizadas</button>
+      <button id="toggleFavorites" class="px-3 py-1 rounded btn-warning">Mostrar Favoritos</button>
+    </div>
+  </div>
+</header>
+
+<!-- GESTIÓN DE CATEGORÍAS -->
+<section id="categoriesSection" class="categories-management hidden fade-in">
+  <div class="flex justify-between items-center mb-4">
+    <h2 class="text-lg font-medium section-title flex items-center gap-2">
+      <i class="fas fa-tags"></i> Gestión de Categorías
+    </h2>
+    <button id="addNewCategory" class="px-3 py-1 rounded btn-primary flex items-center gap-2">
+      <i class="fas fa-plus"></i> Nueva Categoría
+    </button>
+  </div>
+  <div id="categoriesList" class="space-y-2">
+    <!-- Las categorías se cargarán aquí dinámicamente -->
+  </div>
+</section>
+
+<!-- ESTADÍSTICAS -->
+<section class="mb-6 grid grid-cols-2 md:grid-cols-4 gap-4">
+  <div class="stats-card">
+    <div class="text-sm opacity-90">Total</div>
+    <div class="text-2xl font-bold" id="totalCount">0</div>
+  </div>
+  <div class="stats-card">
+    <div class="text-sm opacity-90">Autorizadas</div>
+    <div class="text-2xl font-bold" id="authCount">0</div>
+  </div>
+  <div class="stats-card">
+    <div class="text-sm opacity-90">Pendientes</div>
+    <div class="text-2xl font-bold" id="pendCount">0</div>
+  </div>
+  <div class="stats-card">
+    <div class="text-sm opacity-90">Favoritas</div>
+    <div class="text-2xl font-bold" id="favCount">0</div>
+  </div>
+</section>
+
+<!-- FILTROS Y BÚSQUEDA -->
+<section class="mb-4 grid gap-4 md:grid-cols-3">
+  <div>
+    <label class="block text-sm font-medium mb-1">Buscar</label>
+    <div class="relative">
+      <input id="searchAll" type="search" placeholder="Buscar por concepto o palabra..." class="w-full p-2 pl-10 border rounded" />
+      <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+    </div>
+  </div>
+  <div>
+    <label class="block text-sm font-medium mb-1">Categoría</label>
+    <select id="categoryFilter" class="w-full p-2 border rounded">
+      <option value="">Todas las categorías</option>
+    </select>
+  </div>
+  <div>
+    <label class="block text-sm font-medium mb-1">Ordenar por</label>
+    <select id="sortBy" class="w-full p-2 border rounded">
+      <option value="concept">Concepto (A-Z)</option>
+      <option value="concept-desc">Concepto (Z-A)</option>
+      <option value="date">Más recientes</option>
+      <option value="date-old">Más antiguos</option>
+    </select>
+  </div>
+</section>
+
+<main class="space-y-6">
+
+  <!-- DEFINICIONES AUTORIZADAS -->
+  <section id="authorizedSection" class="bg-white p-4 rounded shadow-sm relative fade-in">
+    <div class="flex items-center justify-between mb-3">
+      <h2 class="text-lg font-medium section-title flex items-center gap-2">
+        <i class="fas fa-check-circle"></i> Definiciones Autorizadas (<span id="countAuth">0</span>)
+      </h2>
+      <button id="selectAuth" class="px-3 py-1 rounded btn-select flex items-center gap-2">
+        <i class="fas fa-check-square"></i> Seleccionar
+      </button>
+    </div>
+    <div id="authorizedList" class="grid gap-3 relative"></div>
+    <div id="authFloatingBar" class="floating-bar hidden">
+      <button id="authMarkAll" class="px-3 py-1 rounded btn-warning flex items-center gap-2">
+        <i class="fas fa-check-double"></i> <span>Marcar todos</span>
+      </button>
+      <button id="authActionBtn" class="px-3 py-1 rounded btn-warning flex items-center gap-2">
+        <i class="fas fa-times-circle"></i> Desautorizar marcados
+      </button>
+      <button id="authDelete" class="px-3 py-1 rounded btn-danger flex items-center gap-2">
+        <i class="fas fa-trash"></i> Eliminar marcados
+      </button>
+    </div>
+  </section>
+
+  <!-- DEFINICIONES NO AUTORIZADAS -->
+  <section id="pendingSection" class="bg-white p-4 rounded shadow-sm relative fade-in">
+    <div class="flex items-center justify-between mb-3">
+      <h2 class="text-lg font-medium section-title flex items-center gap-2">
+        <i class="fas fa-clock"></i> Definiciones No Autorizadas (<span id="countPend">0</span>)
+      </h2>
+      <button id="selectPend" class="px-3 py-1 rounded btn-select flex items-center gap-2">
+        <i class="fas fa-check-square"></i> Seleccionar
+      </button>
+    </div>
+    <div id="pendingList" class="grid gap-3 relative"></div>
+    <div id="pendFloatingBar" class="floating-bar hidden">
+      <button id="pendMarkAll" class="px-3 py-1 rounded btn-warning flex items-center gap-2">
+        <i class="fas fa-check-double"></i> <span>Marcar todos</span>
+      </button>
+      <button id="pendActionBtn" class="px-3 py-1 rounded btn-success flex items-center gap-2">
+        <i class="fas fa-check-circle"></i> Autorizar marcados
+      </button>
+      <button id="pendDelete" class="px-3 py-1 rounded btn-danger flex items-center gap-2">
+        <i class="fas fa-trash"></i> Eliminar marcados
+      </button>
+    </div>
+  </section>
+
+  <!-- DEFINICIONES FAVORITAS -->
+  <section id="favoritesSection" class="bg-white p-4 rounded shadow-sm relative hidden fade-in">
+    <div class="flex items-center justify-between mb-3">
+      <h2 class="text-lg font-medium section-title flex items-center gap-2">
+        <i class="fas fa-star"></i> Definiciones Favoritas (<span id="countFav">0</span>)
+      </h2>
+      <button id="selectFav" class="px-3 py-1 rounded btn-select flex items-center gap-2">
+        <i class="fas fa-check-square"></i> Seleccionar
+      </button>
+    </div>
+    <div id="favoritesList" class="grid gap-3 relative"></div>
+    <div id="favFloatingBar" class="floating-bar hidden">
+      <button id="favMarkAll" class="px-3 py-1 rounded btn-warning flex items-center gap-2">
+        <i class="fas fa-check-double"></i> <span>Marcar todos</span>
+      </button>
+      <button id="favActionBtn" class="px-3 py-1 rounded btn-warning flex items-center gap-2">
+        <i class="fas fa-star"></i> Quitar de favoritos
+      </button>
+      <button id="favDelete" class="px-3 py-1 rounded btn-danger flex items-center gap-2">
+        <i class="fas fa-trash"></i> Eliminar marcados
+      </button>
+    </div>
+  </section>
+
+</main>
+
+<footer class="mt-6 bg-white p-4 rounded flex flex-wrap gap-3 items-center justify-between">
+  <div class="flex gap-2">
+    <button id="exportJSON" class="px-3 py-1 rounded btn-primary flex items-center gap-2">
+      <i class="fas fa-file-export"></i> Exportar
+    </button>
+    <label class="px-3 py-1 rounded btn-primary cursor-pointer flex items-center gap-2">
+      <i class="fas fa-file-import"></i>
+      <input id="importFile" type="file" accept=".xlsx,.xls,.json" class="hidden"> Importar
+    </label>
+    <label class="px-3 py-1 rounded btn-primary cursor-pointer flex items-center gap-2">
+      <i class="fas fa-upload"></i>
+      <input id="importBatch" type="file" accept=".xlsx,.xls" class="hidden"> Carga Batch
+    </label>
+    <button id="exportXLSX" class="px-3 py-1 rounded btn-primary flex items-center gap-2">
+      <i class="fas fa-file-excel"></i> Exportar XLSX
+    </button>
+    <!-- BOTÓN NUEVO: FORMATO CB -->
+    <button id="exportTemplate" class="px-3 py-1 rounded btn-success flex items-center gap-2">
+      <i class="fas fa-download"></i> Formato CB
+    </button>
+  </div>
+  <div class="flex gap-2">
+    <button id="sendEmail" class="px-3 py-1 rounded btn-success flex items-center gap-2">
+      <i class="fas fa-envelope"></i> Enviar por correo
+    </button>
+    <button id="sendWhats" class="px-3 py-1 rounded btn-success flex items-center gap-2">
+      <i class="fab fa-whatsapp"></i> Enviar por WhatsApp
+    </button>
+  </div>
+</footer>
+</div>
+
+<!-- MODAL NUEVA DEFINICIÓN -->
+<div id="modal" class="fixed inset-0 bg-black/40 flex items-center justify-center hidden z-50">
+  <div class="bg-white rounded shadow-lg max-w-2xl w-full p-6 m-4">
+    <h3 id="modalTitle" class="text-xl font-medium mb-3">Nueva Definición</h3>
+    <div class="grid gap-3">
+      <label>Concepto<input id="mConcept" class="w-full p-2 border rounded" /></label>
+      <label>Definición<textarea id="mDefinition" rows="4" class="w-full p-2 border rounded"></textarea></label>
+      <div>
+        <label class="block text-sm font-medium mb-1">Categoría</label>
+        <div class="flex gap-2">
+          <select id="mCategory" class="w-full p-2 border rounded">
+            <option value="">Sin categoría</option>
+          </select>
+          <button id="addCategory" class="px-3 py-1 rounded btn-outline whitespace-nowrap">Nueva Categoría</button>
+        </div>
+      </div>
+      <div class="flex justify-end gap-2">
+        <button id="modalCancel" class="px-3 py-1 rounded btn-warning">Cancelar</button>
+        <button id="modalSave" class="px-3 py-1 rounded btn-primary">Guardar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL NUEVA CATEGORÍA -->
+<div id="categoryModal" class="fixed inset-0 bg-black/40 flex items-center justify-center hidden z-50">
+  <div class="bg-white rounded shadow-lg max-w-md w-full p-6 m-4">
+    <h3 class="text-xl font-medium mb-3">Nueva Categoría</h3>
+    <div class="grid gap-3">
+      <label>Nombre de la categoría<input id="newCategoryName" class="w-full p-2 border rounded" /></label>
+      <div class="flex justify-end gap-2">
+        <button id="categoryModalCancel" class="px-3 py-1 rounded btn-warning">Cancelar</button>
+        <button id="categoryModalSave" class="px-3 py-1 rounded btn-primary">Guardar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ===================== VARIABLES ===================== */
+let glossary = JSON.parse(localStorage.getItem('glossaryData')) || [];
+let categories = JSON.parse(localStorage.getItem('glossaryCategories')) || ['General', 'Técnico', 'Negocio', 'Legal'];
+let showFavoritesOnly = false;
+
+/* ===================== FUNCIONES PRINCIPALES ===================== */
+function saveGlossary() {
+  glossary.sort((a,b) => a.concept.localeCompare(b.concept));
+  localStorage.setItem('glossaryData', JSON.stringify(glossary));
+  localStorage.setItem('glossaryCategories', JSON.stringify(categories));
+  renderGlossary();
+  updateStats();
+  renderCategoriesManagement();
+}
+
+function renderGlossary() {
+  const authList = document.getElementById('authorizedList');
+  const pendList = document.getElementById('pendingList');
+  const favList = document.getElementById('favoritesList');
+  authList.innerHTML = ''; 
+  pendList.innerHTML = '';
+  favList.innerHTML = '';
+
+  function normalizeText(text) {
+    return text
+      .normalize('NFD')       // separa los acentos
+      .replace(/[\u0300-\u036f]/g, '') // los elimina
+      .toLowerCase();
+  }
+
+  const search = normalizeText(document.getElementById('searchAll').value);
+  const categoryFilter = document.getElementById('categoryFilter').value;
+  const sortBy = document.getElementById('sortBy').value;
+
+  // Filtrar y ordenar
+  let filteredGlossary = glossary.filter(item => {
+    const concept = normalizeText(item.concept);
+    const definition = normalizeText(item.definition);
+    const matchesSearch = !search || concept.includes(search) || definition.includes(search);
+    const matchesCategory = !categoryFilter || item.category === categoryFilter;
+    const matchesFavorites = !showFavoritesOnly || item.favorite;
+    
+    return matchesSearch && matchesCategory && matchesFavorites;
+  });
+
+  // Ordenar
+  filteredGlossary.sort((a, b) => {
+    switch(sortBy) {
+      case 'concept-desc':
+        return b.concept.localeCompare(a.concept);
+      case 'date':
+        return new Date(b.date || 0) - new Date(a.date || 0);
+      case 'date-old':
+        return new Date(a.date || 0) - new Date(b.date || 0);
+      default: // 'concept'
+        return a.concept.localeCompare(b.concept);
+    }
+  });
+
+  // Renderizar
+  filteredGlossary.forEach(item => {
+    const div = document.createElement('div');
+    div.className = `card ${item.authorized ? 'authorized' : 'pending'} ${item.favorite ? 'favorite' : ''}`;
+    
+    const categoryBadge = item.category ? 
+      `<span class="category-badge" style="background-color: ${getCategoryColor(item.category)}; color: white;" data-category="${item.category}">${item.category}</span>` : '';
+    
+    const favoriteIcon = item.favorite ? 
+      '<i class="fas fa-star text-yellow-500"></i>' : 
+      '<i class="far fa-star text-gray-400"></i>';
+    
+    div.innerHTML = `
+      <input type='checkbox' class='checkbox-select'/> 
+      <div class='flex justify-between items-start'>
+        <div class='font-semibold'>${item.concept}</div>
+        <button class='favorite-btn text-lg ml-2' data-concept="${item.concept}">${favoriteIcon}</button>
+      </div>
+      <div class='text-gray-700 mt-1 whitespace-pre-wrap'>${item.definition}</div>
+      <div class="mt-2">${categoryBadge}</div>
+      ${item.date ? `<div class="text-xs text-gray-500 mt-2">Creado: ${new Date(item.date).toLocaleDateString()}</div>` : ''}
+    `;
+    div.addEventListener('dblclick', () => startEdit(div, item));
+    
+    // Agregar a la lista correspondiente
+    if (showFavoritesOnly && item.favorite) {
+      favList.appendChild(div);
+    } else if (item.authorized) {
+      authList.appendChild(div);
+    } else {
+      pendList.appendChild(div);
+    }
+  });
+
+  document.getElementById('countAuth').textContent = glossary.filter(g => g.authorized && !showFavoritesOnly).length;
+  document.getElementById('countPend').textContent = glossary.filter(g => !g.authorized && !showFavoritesOnly).length;
+  document.getElementById('countFav').textContent = glossary.filter(g => g.favorite).length;
+  
+  attachSelectionHandlers();
+  attachFavoriteHandlers();
+  attachCategoryBadgeHandlers();
+}
+
+function updateStats() {
+  const total = glossary.length;
+  const auth = glossary.filter(g => g.authorized).length;
+  const pend = glossary.filter(g => !g.authorized).length;
+  const fav = glossary.filter(g => g.favorite).length;
+  
+  document.getElementById('totalCount').textContent = total;
+  document.getElementById('authCount').textContent = auth;
+  document.getElementById('pendCount').textContent = pend;
+  document.getElementById('favCount').textContent = fav;
+}
+
+function getCategoryColor(category) {
+  // Generar un color basado en el nombre de la categoría
+  const colors = [
+    '#3B82F6', '#EF4444', '#10B981', '#F59E0B', 
+    '#8B5CF6', '#EC4899', '#06B6D4', '#84CC16'
+  ];
+  let hash = 0;
+  for (let i = 0; i < category.length; i++) {
+    hash = category.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  return colors[Math.abs(hash) % colors.length];
+}
+
+function updateCategorySelects() {
+  const categorySelects = document.querySelectorAll('#categoryFilter, #mCategory');
+  categorySelects.forEach(select => {
+    const currentValue = select.value;
+    select.innerHTML = '<option value="">Sin categoría</option>';
+    categories.forEach(cat => {
+      const option = document.createElement('option');
+      option.value = cat;
+      option.textContent = cat;
+      select.appendChild(option);
+    });
+    if (categories.includes(currentValue)) {
+      select.value = currentValue;
+    }
+  });
+}
+
+/* ===================== GESTIÓN DE CATEGORÍAS ===================== */
+function renderCategoriesManagement() {
+  const categoriesList = document.getElementById('categoriesList');
+  categoriesList.innerHTML = '';
+
+  categories.forEach((category, index) => {
+    const categoryItem = document.createElement('div');
+    categoryItem.className = 'category-item';
+    categoryItem.innerHTML = `
+      <div class="flex items-center gap-2">
+        <span class="category-color-indicator w-4 h-4 rounded-full" style="background-color: ${getCategoryColor(category)}"></span>
+        <span class="category-name">${category}</span>
+      </div>
+      <div class="category-actions">
+        <button class="edit-category px-2 py-1 rounded btn-outline text-sm" data-index="${index}">
+          <i class="fas fa-edit"></i>
+        </button>
+        <button class="delete-category px-2 py-1 rounded btn-danger text-sm" data-index="${index}">
+          <i class="fas fa-trash"></i>
+        </button>
+      </div>
+    `;
+    categoriesList.appendChild(categoryItem);
+  });
+
+  // Agregar eventos a los botones de edición y eliminación
+  document.querySelectorAll('.edit-category').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const index = parseInt(btn.dataset.index);
+      startEditCategory(index);
+    });
+  });
+
+  document.querySelectorAll('.delete-category').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const index = parseInt(btn.dataset.index);
+      deleteCategory(index);
+    });
+  });
+}
+
+function startEditCategory(index) {
+  const categoryItem = document.querySelectorAll('.category-item')[index];
+  const currentName = categories[index];
+  
+  categoryItem.classList.add('editing');
+  categoryItem.innerHTML = `
+    <div class="flex items-center gap-2 flex-1">
+      <span class="category-color-indicator w-4 h-4 rounded-full" style="background-color: ${getCategoryColor(currentName)}"></span>
+      <input type="text" class="category-edit-input border rounded p-1 flex-1" value="${currentName}">
+    </div>
+    <div class="category-actions">
+      <button class="save-category px-2 py-1 rounded btn-success text-sm" data-index="${index}">
+        <i class="fas fa-check"></i>
+      </button>
+      <button class="cancel-edit-category px-2 py-1 rounded btn-warning text-sm" data-index="${index}">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+  `;
+
+  // Enfocar el input
+  const input = categoryItem.querySelector('.category-edit-input');
+  input.focus();
+  input.select();
+
+  // Agregar eventos a los botones de guardar y cancelar
+  categoryItem.querySelector('.save-category').addEventListener('click', (e) => {
+    e.stopPropagation();
+    saveCategoryEdit(index);
+  });
+
+  categoryItem.querySelector('.cancel-edit-category').addEventListener('click', (e) => {
+    e.stopPropagation();
+    cancelCategoryEdit(index);
+  });
+
+  // Permitir guardar con Enter
+  input.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+      saveCategoryEdit(index);
+    }
+  });
+}
+
+function saveCategoryEdit(index) {
+  const input = document.querySelectorAll('.category-item')[index].querySelector('.category-edit-input');
+  const newName = input.value.trim();
+
+  if (!newName) {
+    alert('El nombre de la categoría no puede estar vacío');
+    return;
+  }
+
+  if (categories.includes(newName) && newName !== categories[index]) {
+    alert('Ya existe una categoría con ese nombre');
+    return;
+  }
+
+  const oldName = categories[index];
+  categories[index] = newName;
+
+  // Actualizar todas las definiciones que usaban la categoría anterior
+  glossary.forEach(item => {
+    if (item.category === oldName) {
+      item.category = newName;
+    }
+  });
+
+  saveGlossary();
+}
+
+function cancelCategoryEdit(index) {
+  renderCategoriesManagement();
+}
+
+function deleteCategory(index) {
+  const categoryName = categories[index];
+  const definitionsWithCategory = glossary.filter(item => item.category === categoryName).length;
+
+  if (definitionsWithCategory > 0) {
+    if (!confirm(`La categoría "${categoryName}" está siendo utilizada por ${definitionsWithCategory} definición(es). ¿Estás seguro de que quieres eliminarla? Las definiciones perderán esta categoría.`)) {
+      return;
+    }
+
+    // Quitar la categoría de las definiciones que la usan
+    glossary.forEach(item => {
+      if (item.category === categoryName) {
+        item.category = '';
+      }
+    });
+  } else {
+    if (!confirm(`¿Estás seguro de que quieres eliminar la categoría "${categoryName}"?`)) {
+      return;
+    }
+  }
+
+  categories.splice(index, 1);
+  saveGlossary();
+}
+
+function addNewCategory() {
+  const newCategoryName = prompt('Ingresa el nombre de la nueva categoría:');
+  
+  if (!newCategoryName) return;
+  
+  if (categories.includes(newCategoryName)) {
+    alert('Ya existe una categoría con ese nombre');
+    return;
+  }
+
+  categories.push(newCategoryName.trim());
+  saveGlossary();
+}
+
+/* ===================== EDICIÓN DIRECTA DE CATEGORÍAS EN BADGES ===================== */
+function attachCategoryBadgeHandlers() {
+  document.querySelectorAll('.category-badge').forEach(badge => {
+    badge.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const categoryName = badge.dataset.category;
+      startEditCategoryBadge(badge, categoryName);
+    });
+  });
+}
+
+function startEditCategoryBadge(badge, categoryName) {
+  const categoryIndex = categories.indexOf(categoryName);
+  if (categoryIndex === -1) return;
+
+  // Guardar el color original
+  const originalColor = badge.style.backgroundColor;
+  
+  // Convertir el badge en modo edición
+  badge.classList.add('editing');
+  badge.innerHTML = `
+    <input type="text" class="category-edit-input" value="${categoryName}" style="color: #1E40AF;">
+    <button class="category-action-btn category-save-btn" title="Guardar">
+      <i class="fas fa-check"></i>
+    </button>
+    <button class="category-action-btn category-cancel-btn" title="Cancelar">
+      <i class="fas fa-times"></i>
+    </button>
+    <button class="category-action-btn category-delete-btn" title="Eliminar">
+      <i class="fas fa-trash"></i>
+    </button>
+  `;
+
+  // Enfocar el input
+  const input = badge.querySelector('.category-edit-input');
+  input.focus();
+  input.select();
+
+  // Agregar eventos a los botones
+  const saveBtn = badge.querySelector('.category-save-btn');
+  const cancelBtn = badge.querySelector('.category-cancel-btn');
+  const deleteBtn = badge.querySelector('.category-delete-btn');
+
+  saveBtn.onclick = (e) => {
+    e.stopPropagation();
+    saveCategoryBadgeEdit(badge, categoryIndex, originalColor);
+  };
+
+  cancelBtn.onclick = (e) => {
+    e.stopPropagation();
+    cancelCategoryBadgeEdit(badge, categoryName, originalColor);
+  };
+
+  deleteBtn.onclick = (e) => {
+    e.stopPropagation();
+    deleteCategoryBadge(categoryIndex);
+  };
+
+  // Permitir guardar con Enter
+  input.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+      saveCategoryBadgeEdit(badge, categoryIndex, originalColor);
+    }
+  });
+
+  // Cancelar con Escape
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      cancelCategoryBadgeEdit(badge, categoryName, originalColor);
+    }
+  });
+}
+
+function saveCategoryBadgeEdit(badge, categoryIndex, originalColor) {
+  const input = badge.querySelector('.category-edit-input');
+  const newName = input.value.trim();
+
+  if (!newName) {
+    alert('El nombre de la categoría no puede estar vacío');
+    return;
+  }
+
+  if (categories.includes(newName) && newName !== categories[categoryIndex]) {
+    alert('Ya existe una categoría con ese nombre');
+    return;
+  }
+
+  const oldName = categories[categoryIndex];
+  categories[categoryIndex] = newName;
+
+  // Actualizar todas las definiciones que usaban la categoría anterior
+  glossary.forEach(item => {
+    if (item.category === oldName) {
+      item.category = newName;
+    }
+  });
+
+  saveGlossary();
+}
+
+function cancelCategoryBadgeEdit(badge, categoryName, originalColor) {
+  // Restaurar el badge original
+  badge.classList.remove('editing');
+  badge.innerHTML = categoryName;
+  badge.style.backgroundColor = originalColor;
+}
+
+function deleteCategoryBadge(categoryIndex) {
+  const categoryName = categories[categoryIndex];
+  const definitionsWithCategory = glossary.filter(item => item.category === categoryName).length;
+
+  if (definitionsWithCategory > 0) {
+    if (!confirm(`La categoría "${categoryName}" está siendo utilizada por ${definitionsWithCategory} definición(es). ¿Estás seguro de que quieres eliminarla? Las definiciones perderán esta categoría.`)) {
+      return;
+    }
+
+    // Quitar la categoría de las definiciones que la usan
+    glossary.forEach(item => {
+      if (item.category === categoryName) {
+        item.category = '';
+      }
+    });
+  } else {
+    if (!confirm(`¿Estás seguro de que quieres eliminar la categoría "${categoryName}"?`)) {
+      return;
+    }
+  }
+
+  categories.splice(categoryIndex, 1);
+  saveGlossary();
+}
+
+/* ===================== MODO OSCURO MEJORADO ===================== */
+function initializeDarkMode() {
+  // Verificar preferencia del sistema
+  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const savedMode = localStorage.getItem('darkMode');
+  
+  // Aplicar modo oscuro si está guardado o si el sistema lo prefiere
+  if (savedMode === 'true' || (savedMode === null && prefersDark)) {
+    document.body.classList.add('dark-mode');
+    updateDarkModeIcon(true);
+  }
+}
+
+function updateDarkModeIcon(isDark) {
+  const icon = document.querySelector('#toggleDarkMode i');
+  if (isDark) {
+    icon.classList.replace('fa-moon', 'fa-sun');
+    icon.classList.add('text-yellow-400');
+  } else {
+    icon.classList.replace('fa-sun', 'fa-moon');
+    icon.classList.remove('text-yellow-400');
+  }
+}
+
+/* ===================== EDICIÓN ===================== */
+function startEdit(div, item) {
+  div.classList.add('editable');
+  
+  const categoryOptions = categories.map(cat => 
+    `<option value="${cat}" ${item.category === cat ? 'selected' : ''}>${cat}</option>`
+  ).join('');
+  
+  div.innerHTML = `
+    <input class='p-2 border rounded w-full' value='${item.concept}'>
+    <textarea class='p-2 border rounded w-full mt-2' rows='4'>${item.definition}</textarea>
+    <div class="mt-2">
+      <label class="block text-sm font-medium mb-1">Categoría</label>
+      <select class="w-full p-2 border rounded">
+        <option value="">Sin categoría</option>
+        ${categoryOptions}
+      </select>
+    </div>
+    <div class='flex justify-end gap-2 mt-3'>
+      <button class='px-3 py-1 border rounded'>Cancelar</button>
+      <button class='px-3 py-1 bg-green-600 text-white rounded'>Guardar</button>
+      <button class='px-3 py-1 border rounded text-red-600'>Eliminar</button>
+    </div>
+  `;
+  const [conceptInput, defInput, categorySelect, actions] = [...div.querySelectorAll('input, textarea, select, div.flex')];
+  const [cancelBtn, saveBtn, deleteBtn] = actions.querySelectorAll('button');
+
+  cancelBtn.onclick = renderGlossary;
+  saveBtn.onclick = () => { 
+    item.concept = conceptInput.value.trim();
+    item.definition = defInput.value.trim();
+    item.category = categorySelect.value;
+    saveGlossary();
+  };
+  deleteBtn.onclick = () => {
+    if(confirm('¿Eliminar definición?')) {
+      glossary = glossary.filter(g => g !== item);
+      saveGlossary();
+    }
+  };
+}
+
+/* ===================== FAVORITOS ===================== */
+function attachFavoriteHandlers() {
+  document.querySelectorAll('.favorite-btn').forEach(btn => {
+    btn.onclick = (e) => {
+      e.stopPropagation();
+      const concept = btn.dataset.concept;
+      const item = glossary.find(g => g.concept === concept);
+      if (item) {
+        item.favorite = !item.favorite;
+        saveGlossary();
+      }
+    };
+  });
+}
+
+/* ===================== EVENTOS ===================== */
+document.getElementById('searchAll').addEventListener('input', renderGlossary);
+document.getElementById('categoryFilter').addEventListener('change', renderGlossary);
+document.getElementById('sortBy').addEventListener('change', renderGlossary);
+
+/* Modo oscuro mejorado */
+document.getElementById('toggleDarkMode').onclick = () => {
+  const isDark = document.body.classList.toggle('dark-mode');
+  localStorage.setItem('darkMode', isDark);
+  updateDarkModeIcon(isDark);
+};
+
+/* Gestión de categorías */
+document.getElementById('manageCategories').onclick = () => {
+  const categoriesSection = document.getElementById('categoriesSection');
+  categoriesSection.classList.toggle('hidden');
+};
+
+document.getElementById('addNewCategory').onclick = addNewCategory;
+
+/* Mostrar/ocultar favoritos */
+document.getElementById('toggleFavorites').onclick = (e) => {
+  showFavoritesOnly = !showFavoritesOnly;
+  const favSection = document.getElementById('favoritesSection');
+  
+  if (showFavoritesOnly) {
+    favSection.classList.remove('hidden');
+    document.getElementById('authorizedSection').classList.add('hidden');
+    document.getElementById('pendingSection').classList.add('hidden');
+    e.target.textContent = 'Mostrar Todas';
+  } else {
+    favSection.classList.add('hidden');
+    document.getElementById('authorizedSection').classList.remove('hidden');
+    document.getElementById('pendingSection').classList.remove('hidden');
+    e.target.textContent = 'Mostrar Favoritos';
+  }
+  
+  renderGlossary();
+};
+
+/* Modal */
+const modal = document.getElementById('modal');
+document.getElementById('openNew').onclick = () => {
+  document.getElementById('mConcept').value = '';
+  document.getElementById('mDefinition').value = '';
+  document.getElementById('mCategory').value = '';
+  modal.classList.remove('hidden');
+};
+document.getElementById('modalCancel').onclick = () => modal.classList.add('hidden');
+document.getElementById('modalSave').onclick = () => {
+  const c = document.getElementById('mConcept').value.trim();
+  const d = document.getElementById('mDefinition').value.trim();
+  const cat = document.getElementById('mCategory').value;
+  if(!c || !d){ alert('Completa ambos campos'); return; }
+  glossary.push({
+    concept: c, 
+    definition: d, 
+    authorized: false, 
+    category: cat,
+    date: new Date().toISOString()
+  });
+  saveGlossary();
+  modal.classList.add('hidden');
+};
+
+/* Modal categoría */
+const categoryModal = document.getElementById('categoryModal');
+document.getElementById('addCategory').onclick = () => {
+  document.getElementById('newCategoryName').value = '';
+  categoryModal.classList.remove('hidden');
+};
+document.getElementById('categoryModalCancel').onclick = () => categoryModal.classList.add('hidden');
+document.getElementById('categoryModalSave').onclick = () => {
+  const name = document.getElementById('newCategoryName').value.trim();
+  if(!name) { alert('Ingresa un nombre para la categoría'); return; }
+  if(!categories.includes(name)) {
+    categories.push(name);
+    updateCategorySelects();
+  }
+  document.getElementById('mCategory').value = name;
+  categoryModal.classList.add('hidden');
+};
+
+/* Toggle secciones */
+document.getElementById('toggleAuthorized').onclick = (e) => {
+  const sec = document.getElementById('authorizedSection');
+  sec.style.display = sec.style.display==='none'?'block':'none';
+  e.target.textContent = sec.style.display==='none'?'Mostrar Autorizadas':'Ocultar Autorizadas';
+};
+document.getElementById('togglePending').onclick = (e) => {
+  const sec = document.getElementById('pendingSection');
+  sec.style.display = sec.style.display==='none'?'block':'none';
+  e.target.textContent = sec.style.display==='none'?'Mostrar No Autorizadas':'Ocultar No Autorizadas';
+};
+
+/* ===================== EXPORT / IMPORT ===================== */
+// Export JSON con diálogo "Guardar como..." (mejor experiencia)
+document.getElementById('exportJSON').onclick = async () => {
+  const fecha = new Date();
+  const dia  = String(fecha.getDate() ).padStart(2, '0');
+  const mes  = String(fecha.getMonth()+1).padStart(2, '0');
+  const anio = fecha.getFullYear();
+  const nombreSugerido = `Glossarium_respaldo (${dia}-${mes}-${anio}).json`;
+
+  const contenido = JSON.stringify(glossary, null, 2);
+  const blob = new Blob([contenido], { type: 'application/json' });
+
+  // Intentamos usar la API moderna primero
+  if ('showSaveFilePicker' in window) {
+    try {
+      const handle = await window.showSaveFilePicker({
+        suggestedName: nombreSugerido,
+        types: [{
+          description: 'Archivo JSON',
+          accept: { 'application/json': ['.json'] },
+        }],
+      });
+
+      const writable = await handle.createWritable();
+      await writable.write(blob);
+      await writable.close();
+
+      // Opcional: retroalimentación visual
+      alert('¡Archivo guardado exitosamente!');
+      return;
+    } catch (err) {
+      // El usuario canceló o el navegador no permitió
+      if (err.name !== 'AbortError') {
+        console.warn('showSaveFilePicker falló:', err);
+        // → continuamos con método clásico como fallback
+      }
+    }
+  }
+
+  // Fallback clásico (comportamiento actual)
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = nombreSugerido;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+};
+
+// Export XLSX
+document.getElementById('exportXLSX').onclick = () => {
+  const wb = XLSX.utils.book_new();
+  const auth = glossary.filter(g => g.authorized).map(g => ({ 
+    Concepto: g.concept, 
+    Definición: g.definition,
+    Categoría: g.category || '',
+    Favorito: g.favorite ? 'Sí' : 'No',
+    Fecha: g.date ? new Date(g.date).toLocaleDateString() : ''
+  }));
+  const pend = glossary.filter(g => !g.authorized).map(g => ({ 
+    Concepto: g.concept, 
+    Definición: g.definition,
+    Categoría: g.category || '',
+    Favorito: g.favorite ? 'Sí' : 'No',
+    Fecha: g.date ? new Date(g.date).toLocaleDateString() : ''
+  }));
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(auth), 'Autorizados');
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(pend), 'No Autorizados');
+  XLSX.writeFile(wb, 'glosario.xlsx');
+};
+
+// NUEVA FUNCIÓN: Exportar Formato CB (Carga Batch)
+document.getElementById('exportTemplate').onclick = () => {
+  const wb = XLSX.utils.book_new();
+  
+  // Datos de ejemplo para la plantilla
+  const templateData = [
+    {
+      'Concepto': 'Control Interno',
+      'Definición': 'Sistema integrado de procedimientos y políticas diseñado para proporcionar seguridad razonable sobre el logro de objetivos institucionales.',
+      'Categoría': 'Auditoría',
+      'Autorizado': 'SI',
+      'Favorito': 'NO'
+    },
+    {
+      'Concepto': 'Governanza Corporativa',
+      'Definición': 'Conjunto de principios y normas que regulan el diseño, integración y funcionamiento de los órganos de gobierno de la empresa.',
+      'Categoría': 'Gobierno',
+      'Autorizado': 'NO',
+      'Favorito': 'SI'
+    },
+    {
+      'Concepto': 'Riesgo Operacional',
+      'Definición': 'Posibilidad de ocurrencia de pérdidas debido a fallas o inadecuaciones en procesos, personas, sistemas o eventos externos.',
+      'Categoría': 'Riesgos',
+      'Autorizado': 'SI',
+      'Favorito': 'NO'
+    },
+    {
+      'Concepto': 'Cumplimiento Normativo',
+      'Definición': 'Proceso de asegurar que la organización cumple con las leyes, regulaciones y estándares aplicables a sus operaciones.',
+      'Categoría': 'Legal',
+      'Autorizado': 'SI',
+      'Favorito': 'NO'
+    }
+  ];
+
+  // Instrucciones detalladas
+  const instructions = [
+    {'INSTRUCCIONES PARA CARGA BATCH': ''},
+    {'': ''},
+    {'CONCEPTO': 'Texto del término o concepto (OBLIGATORIO)'},
+    {'DEFINICIÓN': 'Explicación detallada del concepto (OBLIGATORIO)'},
+    {'CATEGORÍA': 'Grupo de clasificación (OPCIONAL)'},
+    {'AUTORIZADO': 'SI para aprobado, NO para pendiente (OPCIONAL)'},
+    {'FAVORITO': 'SI para destacar, NO para normal (OPCIONAL)'},
+    {'': ''},
+    {'NOTAS IMPORTANTES': ''},
+    {'- Mantener los nombres de columnas exactos': ''},
+    {'- Usar SI/NO en mayúsculas': ''},
+    {'- Evitar conceptos duplicados': ''},
+    {'- Guardar como archivo Excel (.xlsx)': ''}
+  ];
+
+  // Crear hojas
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(instructions), 'Instrucciones');
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(templateData), 'Definiciones');
+  
+  // Descargar
+  XLSX.writeFile(wb, 'Formato_CB_Glossarium.xlsx');
+  alert('Plantilla de Carga Batch descargada. Complete con sus definiciones y use "Carga Batch" para importar.');
+};
+
+// Import JSON / XLSX
+document.getElementById('importFile').addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+
+  if(file.name.endsWith('.json')){
+    reader.onload = (ev) => {
+      try {
+        const imported = JSON.parse(ev.target.result);
+        imported.forEach(item => {
+          if(item.concept && item.definition && !glossary.some(g => g.concept.toLowerCase() === item.concept.toLowerCase())){
+            glossary.push({
+              concept:item.concept.trim(), 
+              definition:item.definition.trim(), 
+              authorized: !!item.authorized,
+              category: item.category || '',
+              favorite: !!item.favorite,
+              date: item.date || new Date().toISOString()
+            });
+          }
+        });
+        saveGlossary();
+        alert('Importación JSON completada sin duplicados.');
+      } catch { alert('Error al leer el archivo JSON.'); }
+    };
+    reader.readAsText(file);
+  } else { handleImport(e.target.files); }
+});
+
+// Batch import
+document.getElementById('importBatch').addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    try {
+      const wb = XLSX.read(ev.target.result, { type: 'binary' });
+      const sheetName = wb.SheetNames.find(name => 
+        name.toLowerCase().includes('definicion') || 
+        name.toLowerCase().includes('concept')
+      ) || wb.SheetNames[0];
+      
+      const rows = XLSX.utils.sheet_to_json(wb.Sheets[sheetName], { defval: '' });
+      let loadedCount = 0;
+      let skippedCount = 0;
+      
+      rows.forEach((r, index) => {
+        // Saltar filas vacías o de instrucciones
+        if (!r.Concepto || !r.Definición || r.Concepto === 'CONCEPTO') {
+          skippedCount++;
+          return;
+        }
+
+        const concepto = (r.Concepto || '').toString().trim();
+        const definicion = (r.Definición || '').toString().trim();
+        const categoria = (r.Categoría || '').toString().trim();
+        
+        // Procesamiento robusto de valores SI/NO
+        const autorizado = procesarValorBooleano(r.Autorizado);
+        const favorito = procesarValorBooleano(r.Favorito);
+
+        if(concepto && definicion && !glossary.some(g => 
+          g.concept.toLowerCase() === concepto.toLowerCase()
+        )){
+          glossary.push({ 
+            concept: concepto, 
+            definition: definicion, 
+            authorized: autorizado,
+            category: categoria,
+            favorite: favorito,
+            date: new Date().toISOString()
+          });
+          loadedCount++;
+        } else {
+          skippedCount++;
+        }
+      });
+      
+      saveGlossary();
+      
+      // Mensaje detallado
+      let message = `Carga batch completada:\n`;
+      message += `✅ ${loadedCount} definiciones cargadas\n`;
+      if(skippedCount > 0) {
+        message += `⚠️ ${skippedCount} filas omitidas (duplicados o datos incompletos)`;
+      }
+      alert(message);
+      
+    } catch(error) { 
+      console.error('Error en carga batch:', error);
+      alert('Error al procesar el archivo Excel. Verifique el formato.');
+    }
+  };
+  reader.readAsBinaryString(file);
+});
+
+// Función auxiliar para procesar valores SI/NO
+function procesarValorBooleano(valor) {
+  if (!valor) return false;
+  
+  const strValor = valor.toString()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .trim();
+    
+  return ['si', 'sí', 'yes', 'true', '1', 'verdadero'].includes(strValor);
+}
+
+/* ===================== SELECCIÓN MÚLTIPLE ===================== */
+function attachSelectionHandlers() {
+  ['Auth','Pend','Fav'].forEach(type => {
+    const list = document.getElementById(type==='Auth'?'authorizedList':type==='Pend'?'pendingList':'favoritesList');
+    const selectBtn = document.getElementById(type==='Auth'?'selectAuth':type==='Pend'?'selectPend':'selectFav');
+    const floatBar = document.getElementById(type==='Auth'?'authFloatingBar':type==='Pend'?'pendFloatingBar':'favFloatingBar');
+    const markAll = document.getElementById(type==='Auth'?'authMarkAll':type==='Pend'?'pendMarkAll':'favMarkAll');
+    const actionBtn = document.getElementById(type==='Auth'?'authActionBtn':type==='Pend'?'pendActionBtn':'favActionBtn');
+    const deleteBtn = document.getElementById(type==='Auth'?'authDelete':type==='Pend'?'pendDelete':'favDelete');
+
+    if (!list) return; // En caso de que no exista la lista (favoritos oculta)
+
+    function updateMarkAll(){
+      const boxes = list.querySelectorAll('.checkbox-select');
+      markAll.querySelector('span').textContent = [...boxes].every(b=>b.checked)?'Desmarcar todos':'Marcar todos';
+    }
+
+    selectBtn.onclick = () => {
+      const active = selectBtn.dataset.active==='true';
+      list.querySelectorAll('.checkbox-select').forEach(c=>c.style.display=active?'none':'inline-block');
+      floatBar.classList.toggle('hidden',active);
+      selectBtn.innerHTML = active?'<i class="fas fa-check-square"></i> Seleccionar':'<i class="fas fa-times"></i> Deseleccionar';
+      selectBtn.dataset.active = !active;
+    };
+
+    markAll.onclick = () => {
+      const boxes = list.querySelectorAll('.checkbox-select');
+      const allChecked = [...boxes].every(b => b.checked);
+      boxes.forEach(b=>b.checked=!allChecked);
+      updateMarkAll();
+    };
+
+    actionBtn.onclick = () => {
+      const boxes = list.querySelectorAll('.checkbox-select:checked');
+      if(!boxes.length) return alert('Selecciona al menos uno');
+      if(!confirm('Confirmar acción')) return;
+      boxes.forEach(b => {
+        const concept = b.parentElement.querySelector('.font-semibold').textContent;
+        const item = glossary.find(g=>g.concept===concept);
+        if(item) {
+          if (type === 'Fav') {
+            item.favorite = false;
+          } else {
+            item.authorized = (type==='Pend');
+          }
+        }
+      });
+      saveGlossary();
+      selectBtn.innerHTML='<i class="fas fa-check-square"></i> Seleccionar'; 
+      selectBtn.dataset.active='false';
+      floatBar.classList.add('hidden');
+      list.querySelectorAll('.checkbox-select').forEach(c=>{ c.style.display='none'; c.checked=false; });
+      markAll.querySelector('span').textContent='Marcar todos';
+    };
+
+    deleteBtn.onclick = () => {
+      const boxes = list.querySelectorAll('.checkbox-select:checked');
+      if(!boxes.length) return alert('Selecciona al menos uno');
+      if(!confirm('Eliminar seleccionados?')) return;
+      boxes.forEach(b => {
+        const concept = b.parentElement.querySelector('.font-semibold').textContent;
+        glossary = glossary.filter(g => g.concept !== concept);
+      });
+      saveGlossary();
+      selectBtn.innerHTML='<i class="fas fa-check-square"></i> Seleccionar'; 
+      selectBtn.dataset.active='false';
+      floatBar.classList.add('hidden');
+      list.querySelectorAll('.checkbox-select').forEach(c=>c.style.display='none');
+    };
+
+    list.addEventListener('change', updateMarkAll);
+  });
+}
+
+/* ===================== ENVÍO ===================== */
+function generarTextoEnvio(){
+  let texto='';
+  const autorizados = glossary.filter(g=>g.authorized);
+  const noAutorizados = glossary.filter(g=>!g.authorized);
+
+  if(autorizados.length){
+    texto += 'Autorizados:\n';
+    autorizados.forEach(g=>texto+=`${g.concept}\n${g.definition}\n\n`);
+  }
+
+  if(noAutorizados.length){
+    texto += 'No autorizados:\n';
+    noAutorizados.forEach(g=>texto+=`${g.concept}\n${g.definition}\n\n`);
+  }
+
+  return texto.trim();
+}
+
+document.getElementById('sendEmail').onclick = () => {
+  const cuerpo = encodeURIComponent(generarTextoEnvio());
+  const asunto = encodeURIComponent('Glosario de Definiciones');
+  window.location.href = `mailto:?subject=${asunto}&body=${cuerpo}`;
+};
+
+document.getElementById('sendWhats').onclick = () => {
+  const texto = encodeURIComponent(generarTextoEnvio());
+  window.open(`https://wa.me/?text=${texto}`, '_blank');
+};
+
+/* ===================== INICIALIZACIÓN ===================== */
+updateCategorySelects();
+renderGlossary();
+updateStats();
+renderCategoriesManagement();
+initializeDarkMode(); // Inicializar modo oscuro al cargar
+</script>
+
+<div style="text-align:center; font-size:0.85rem; color:#555; position:fixed; bottom:10px; width:100%; z-index:101;">
+  By Pablo Ojeda
+</div>
+
+</body>
+</html>
